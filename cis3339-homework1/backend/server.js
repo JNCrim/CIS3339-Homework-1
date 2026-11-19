@@ -9,36 +9,10 @@ const Enrollment = require('./models/enrollment');
 
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-const DATA_FILE = path.join(__dirname, 'students.json');
-
-async function loadStudents() {
-    try {
-        const data = await fs.promises.readFile(DATA_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            return [];
-        }
-        console.error('Error reading students file:', error);
-        return [];
-    }
-}
-
-async function saveStudents(students) {
-    try {
-        await fs.promises.writeFile(DATA_FILE, JSON.stringify(students, null, 2), 'utf8');
-    } catch (error) {
-        console.error('Error writing students file:', error);
-        throw error;
-    }
-}
 
 // Endpoint to search for a student by name
 app.post('/find-student', async (req, res) => {

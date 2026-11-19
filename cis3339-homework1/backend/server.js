@@ -14,70 +14,115 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Endpoint to search for a student by name
+
+ // Search for a student by name
 app.post('/find-student', async (req, res) => {
-    try {
-        const { name } = req.body;
-        if (!name) {
-            return res.status(400).send({ error: 'Student name is required' });
-        }
+  try {
+    const { name } = req.body;
 
-        const students = await loadStudents();
-        const student = students.find((item) => item.name === name);
-        if (!student) {
-            return res.status(404).send({ error: 'Student not found' });
-        }
-
-        res.send(student);
-    } catch (error) {
-        console.error('Error finding student:', error);
-        res.status(500).send({ error: 'Internal server error' });
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        error: 'Student name is required'
+      });
     }
+
+    const student = await Student.findOne({
+      name: name.trim()
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        error: 'Student not found'
+      });
+    }
+
+    res.json(student);
+  } catch (error) {
+    console.error('Error finding student:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
 });
 
-// Endpoint to save a student
+// Add a new student
 app.post('/add-student', async (req, res) => {
-    try {
-        const { name, id, phone, zip } = req.body;
-        if (!name || !id || !phone || !zip) {
-            return res.status(400).send({ error: 'All fields (name, id, phone, zip) are required' });
-        }
+  try {
+    const { name, id, phone, zip } = req.body;
 
-        const students = await loadStudents();
-        const newStudent = { name, id, phone, zip };
-        students.push(newStudent);
-        await saveStudents(students);
-
-        res.status(201).send({ message: 'Student added successfully', student: newStudent });
-    } catch (error) {
-        console.error('Error adding student:', error);
-        res.status(500).send({ error: 'Internal server error' });
+    if (![name, id, phone, zip].every(
+      value => typeof value === 'string' && value.trim()
+    )) {
+      return res.status(400).json({
+        error: 'All student fields are required'
+      });
     }
+
+    const newStudent = await Student.create({
+      name: name.trim(),
+      id: id.trim(),
+      phone: phone.trim(),
+      zip: zip.trim()
+    });
+
+    res.status(201).json({
+      message: 'Student added successfully',
+      student: newStudent
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        error: 'Student ID already exists'
+      });
+    }
+
+    console.error('Error adding student:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
 });
 
-// Endpoint to delete a student by name
+// Delete a student by name
 app.post('/delete-student', async (req, res) => {
-    try {
-        const { name } = req.body;
-        if (!name) {
-            return res.status(400).send({ error: 'Student name is required' });
-        }
+  try {
+    const { name } = req.body;
 
-        const students = await loadStudents();
-        const index = students.findIndex((item) => item.name === name);
-        if (index === -1) {
-            return res.status(404).send({ error: 'Student not found' });
-        }
-
-        const deletedStudent = students.splice(index, 1)[0];
-        await saveStudents(students);
-
-        res.send({ message: 'Student deleted successfully', student: deletedStudent });
-    } catch (error) {
-        console.error('Error deleting student:', error);
-        res.status(500).send({ error: 'Internal server error' });
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        error: 'Student name is required'
+      });
     }
+
+    const student = await Student.findOne({
+      name: name.trim()
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        error: 'Student not found'
+      });
+    }
+
+    // Remove enrollments associated with the student
+    await Enrollment.deleteMany({
+      studentId: student.id
+    });
+
+    await Student.deleteOne({ _id: student._id });
+
+    res.json({
+      message: 'Student deleted successfully',
+      student
+    });
+  } catch (error) {
+    console.error('Error deleting student:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
 });
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;

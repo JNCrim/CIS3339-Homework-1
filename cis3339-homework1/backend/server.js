@@ -124,6 +124,86 @@ app.post('/delete-student', async (req, res) => {
 });
 
 
+ // Add a new course
+app.post('/add-course', async (req, res) => {
+  try {
+    const { courseId, courseName } = req.body;
+
+    if (![courseId, courseName].every(
+      value => typeof value === 'string' && value.trim()
+    )) {
+      return res.status(400).json({
+        error: 'Course ID and course name are required'
+      });
+    }
+
+    const course = await Course.create({
+      courseId: courseId.trim(),
+      courseName: courseName.trim()
+    });
+
+    res.status(201).json({
+      message: 'Course added successfully',
+      course
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        error: 'Course ID already exists'
+      });
+    }
+
+    console.error('Error adding course:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+// List all courses
+app.get('/courses', async (req, res) => {
+  try {
+    const courses = await Course.find().sort({ courseId: 1 });
+    res.json(courses);
+  } catch (error) {
+    console.error('Error listing courses:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Delete a course
+app.delete('/courses/:courseId', async (req, res) => {
+  try {
+    const course = await Course.findOne({
+      courseId: req.params.courseId
+    });
+
+    if (!course) {
+      return res.status(404).json({
+        error: 'Course not found'
+      });
+    }
+
+    await Enrollment.deleteMany({
+      courseId: course.courseId
+    });
+
+    await Course.deleteOne({ _id: course._id });
+
+    res.json({
+      message: 'Course deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 

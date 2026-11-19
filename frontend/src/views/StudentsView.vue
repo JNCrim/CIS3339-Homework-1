@@ -1,16 +1,15 @@
 
-
 <script setup>
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useStudentStore } from '../stores/students'
 
-// Backend API address
-const API_URL = 'http://localhost:3000'
+const studentStore = useStudentStore()
 
-// Search functionality
+const { student, message, errorMessage } = storeToRefs(studentStore)
+
 const searchName = ref('')
-const student = ref(null)
 
-// Add student form
 const newStudent = ref({
   name: '',
   id: '',
@@ -18,69 +17,23 @@ const newStudent = ref({
   zip: ''
 })
 
-// Messages
-const message = ref('')
-const errorMessage = ref('')
-
-// Search for a student
 async function searchStudent() {
-  message.value = ''
-  errorMessage.value = ''
-  student.value = null
-
-  try {
-    const response = await fetch(`${API_URL}/find-student`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ name: searchName.value })
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Student not found')
-    }
-
-    student.value = await response.json()
-  } catch (error) {
-    errorMessage.value = error.message
-  }
+  await studentStore.searchStudent(searchName.value)
 }
 
-// Add a student
 async function addStudent() {
-  message.value = ''
-  errorMessage.value = ''
+  const success = await studentStore.addStudent(newStudent.value)
 
-  try {
-    const response = await fetch(`${API_URL}/add-student`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newStudent.value)
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to add student')
-    }
-
-    message.value = 'Student added successfully!'
-
+  if (success) {
     newStudent.value = {
       name: '',
       id: '',
       phone: '',
       zip: ''
     }
-  } catch (error) {
-    errorMessage.value = error.message
   }
 }
 
-// Delete a student
 async function deleteStudent() {
   if (!student.value) return
 
@@ -88,28 +41,7 @@ async function deleteStudent() {
     return
   }
 
-  message.value = ''
-  errorMessage.value = ''
-
-  try {
-    const response = await fetch(`${API_URL}/delete-student`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ name: student.value.name })
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to delete student')
-    }
-
-    student.value = null
-    message.value = 'Student deleted successfully!'
-  } catch (error) {
-    errorMessage.value = error.message
-  }
+  await studentStore.deleteStudent(student.value.name)
 }
 </script>
 

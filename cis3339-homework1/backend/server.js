@@ -217,6 +217,130 @@ app.get('/students', async (req, res) => {
 });
 
 
+// Enroll a student in a course
+app.post('/add-enrollment', async (req, res) => {
+  try {
+    const { studentId, courseId } = req.body;
+
+    if (![studentId, courseId].every(
+      value => typeof value === 'string' && value.trim()
+    )) {
+      return res.status(400).json({
+        error: 'Student ID and course ID are required'
+      });
+    }
+
+    const student = await Student.findOne({
+      id: studentId.trim()
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        error: 'Student not found'
+      });
+    }
+
+    const course = await Course.findOne({
+      courseId: courseId.trim()
+    });
+
+    if (!course) {
+      return res.status(404).json({
+        error: 'Course not found'
+      });
+    }
+
+    const enrollment = await Enrollment.create({
+      studentId: student.id,
+      courseId: course.courseId
+    });
+
+    res.status(201).json({
+      message: 'Student enrolled successfully',
+      enrollment
+    });
+
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        error: 'Student is already enrolled in this course'
+      });
+    }
+
+    console.error('Error adding enrollment:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+// List all enrollments
+app.get('/enrollments', async (req, res) => {
+  try {
+    const enrollments = await Enrollment.find();
+
+    const results = await Promise.all(
+      enrollments.map(async enrollment => {
+        const student = await Student.findOne({
+          id: enrollment.studentId
+        });
+
+        const course = await Course.findOne({
+          courseId: enrollment.courseId
+        });
+
+        return {
+          _id: enrollment._id,
+          studentId: enrollment.studentId,
+          studentName: student?.name || 'Unknown student',
+          courseId: enrollment.courseId,
+          courseName: course?.courseName || 'Unknown course'
+        };
+      })
+    );
+
+    res.json(results);
+
+  } catch (error) {
+    console.error('Error listing enrollments:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Delete an enrollment
+app.delete('/enrollments/:id', async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        error: 'Invalid enrollment ID'
+      });
+    }
+
+    const enrollment = await Enrollment.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (!enrollment) {
+      return res.status(404).json({
+        error: 'Enrollment not found'
+      });
+    }
+
+    res.json({
+      message: 'Enrollment deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting enrollment:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 

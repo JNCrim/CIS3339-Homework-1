@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useCourseStore } from '../stores/courses'
+import { useCourseStore } from '../stores/course'
 
 const courseStore = useCourseStore()
 

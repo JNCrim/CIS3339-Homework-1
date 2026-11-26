@@ -203,6 +203,19 @@ app.delete('/courses/:courseId', async (req, res) => {
   }
 });
 
+// List all students
+app.get('/students', async (req, res) => {
+  try {
+    const students = await Student.find().sort({ name: 1 });
+    res.json(students);
+  } catch (error) {
+    console.error('Error listing students:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;

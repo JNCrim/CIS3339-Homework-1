@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useCourseStore } from '../stores/course'
 import BaseInput from '../components/BaseInput.vue'
 import StatusMessage from '../components/StatusMessage.vue'
-import DataTable from '@/components/DataTable.vue'
+import DataTable from '../components/DataTable.vue'
 
 const courseStore = useCourseStore()
 

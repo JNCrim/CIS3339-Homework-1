@@ -30,8 +30,18 @@ defineEmits(['update:modelValue'])
 
 <style scoped>
 input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  input {
+    font-size: 16px;
+  }
 }
 </style>

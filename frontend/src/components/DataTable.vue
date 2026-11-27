@@ -16,6 +16,7 @@ defineProps({
 </script>
 
 <template>
+<div class="table-container">
   <table>
     <thead>
       <tr>
@@ -48,13 +49,20 @@ defineProps({
       </tr>
     </tbody>
   </table>
+</div>
 </template>
 
 <style scoped>
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
 }
 
 th,
@@ -62,5 +70,13 @@ td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
+}
+
+@media (max-width: 600px) {
+  th,
+  td {
+    padding: 8px;
+    white-space: nowrap;
+  }
 }
 </style>

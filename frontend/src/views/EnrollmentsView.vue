@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEnrollmentStore } from '../stores/enrollments.js'
 
@@ -17,6 +17,20 @@ const {
 const newEnrollment = ref({
   studentId: '',
   courseId: ''
+})
+
+// Selected course for filtering the enrollment list
+const selectedCourse = ref('')
+
+// Filter enrollments by the selected course
+const filteredEnrollments = computed(() => {
+  if (!selectedCourse.value) {
+    return enrollments.value
+  }
+
+  return enrollments.value.filter(
+    enrollment => enrollment.courseId === selectedCourse.value
+  )
 })
 
 // Load data when the page opens
@@ -106,9 +120,25 @@ async function deleteEnrollment(id) {
       {{ errorMessage }}
     </p>
 
-    <h3>Enrollment List</h3>
+<h3>Enrollment List</h3>
 
-    <table v-if="enrollments.length">
+<div class="course-filter">
+  <label for="filterCourse">Filter by Course:</label>
+
+  <select id="filterCourse" v-model="selectedCourse">
+    <option value="">All Courses</option>
+
+    <option
+      v-for="course in courses"
+      :key="course.courseId"
+      :value="course.courseId"
+    >
+      {{ course.courseId }} - {{ course.courseName }}
+    </option>
+  </select>
+</div>
+
+<table v-if="filteredEnrollments.length">
       <thead>
         <tr>
           <th>Student ID</th>
@@ -121,8 +151,8 @@ async function deleteEnrollment(id) {
 
       <tbody>
         <tr
-          v-for="enrollment in enrollments"
-          :key="enrollment._id"
+           v-for="enrollment in filteredEnrollments"
+           :key="enrollment._id"
         >
           <td>{{ enrollment.studentId }}</td>
           <td>{{ enrollment.studentName }}</td>
@@ -137,7 +167,11 @@ async function deleteEnrollment(id) {
       </tbody>
     </table>
 
-    <p v-else>No enrollments available.</p>
+<p v-else-if="selectedCourse">
+  No students are enrolled in this course.
+</p>
+
+<p v-else>No enrollments available.</p>
   </section>
 </template>
 
@@ -191,5 +225,16 @@ th, td {
 
 .error {
   color: #ff5555;
+}
+
+.course-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.course-filter select {
+  width: 100%;
 }
 </style>

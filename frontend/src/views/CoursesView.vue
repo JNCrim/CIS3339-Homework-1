@@ -8,7 +8,14 @@ import DataTable from '../components/DataTable.vue'
 
 const courseStore = useCourseStore()
 
-const { courses, message, errorMessage } = storeToRefs(courseStore)
+const {
+  courses,
+  message,
+  errorMessage,
+  isLoading,
+  isAdding,
+  isDeleting
+} = storeToRefs(courseStore)
 
 const newCourse = ref({
   courseId: '',
@@ -27,6 +34,8 @@ onMounted(() => {
 
 // Add a course
 async function addCourse() {
+  if (isAdding.value || isDeleting.value || isLoading.value) return
+  
   const success = await courseStore.addCourse(newCourse.value)
 
   if (success) {
@@ -39,6 +48,8 @@ async function addCourse() {
 
 // Delete a course
 async function deleteCourse(courseId) {
+  if (isDeleting.value || isAdding.value || isLoading.value) return
+
   if (!confirm(`Delete course ${courseId}?`)) return
 
   await courseStore.deleteCourse(courseId)
@@ -66,7 +77,12 @@ async function deleteCourse(courseId) {
         required
       />
 
-      <button type="submit">Add Course</button>
+      <button
+        type="submit"
+      :disabled="isAdding || isDeleting || isLoading"
+      >
+        {{ isAdding ? 'Adding Course...' : 'Add Course' }}
+      </button>
     </form>
 
     <StatusMessage
@@ -76,15 +92,22 @@ async function deleteCourse(courseId) {
 
     <h3>Course List</h3>
 
+    <p v-if="isLoading" class="loading-message">
+      Loading courses...
+    </p>
+
     <DataTable
-      v-if="courses.length"
+      v-else-if="courses.length"
       :columns="courseColumns"
       :rows="courses"
       row-key="courseId"
     >
       <template #actions="{ row }">
-        <button @click="deleteCourse(row.courseId)">
-          Delete
+        <button
+          @click="deleteCourse(row.courseId)"
+          :disabled="isDeleting || isAdding || isLoading"
+        >
+          {{ isDeleting ? 'Deleting...' : 'Delete' }}
         </button>
       </template>
     </DataTable>
@@ -118,6 +141,21 @@ button {
 
 button:hover {
   background-color: #36966d;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background-color: #42b883;
+}
+
+.loading-message {
+  text-align: center;
+  opacity: 0.8;
+  font-style: italic;
+  margin: 15px 0;
 }
 
 </style>

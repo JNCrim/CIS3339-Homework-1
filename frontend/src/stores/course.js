@@ -1,4 +1,3 @@
-
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -9,8 +8,13 @@ export const useCourseStore = defineStore('courses', () => {
   const message = ref('')
   const errorMessage = ref('')
 
+  const isLoading = ref(false)
+  const isAdding = ref(false)
+  const isDeleting = ref(false)
+
   async function fetchCourses() {
     errorMessage.value = ''
+    isLoading.value = true
 
     try {
       const response = await fetch(`${API_URL}/courses`)
@@ -23,12 +27,15 @@ export const useCourseStore = defineStore('courses', () => {
       courses.value = data
     } catch (error) {
       errorMessage.value = error.message
+    } finally {
+      isLoading.value = false
     }
   }
 
   async function addCourse(course) {
     message.value = ''
     errorMessage.value = ''
+    isAdding.value = true
 
     try {
       const response = await fetch(`${API_URL}/add-course`, {
@@ -49,12 +56,15 @@ export const useCourseStore = defineStore('courses', () => {
     } catch (error) {
       errorMessage.value = error.message
       return false
+    } finally {
+      isAdding.value = false
     }
   }
 
   async function deleteCourse(courseId) {
     message.value = ''
     errorMessage.value = ''
+    isDeleting.value = true
 
     try {
       const response = await fetch(
@@ -72,6 +82,8 @@ export const useCourseStore = defineStore('courses', () => {
       await fetchCourses()
     } catch (error) {
       errorMessage.value = error.message
+    } finally {
+      isDeleting.value = false
     }
   }
 
@@ -79,6 +91,9 @@ export const useCourseStore = defineStore('courses', () => {
     courses,
     message,
     errorMessage,
+    isLoading,
+    isAdding,
+    isDeleting,
     fetchCourses,
     addCourse,
     deleteCourse

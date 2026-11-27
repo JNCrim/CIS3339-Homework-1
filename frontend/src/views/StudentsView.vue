@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import { useStudentStore } from '../stores/students'
 import StatusMessage from '../components/StatusMessage.vue'
 import BaseInput from '../components/BaseInput.vue'
+import DataTable from '../components/DataTable.vue'
 
 const studentStore = useStudentStore()
 
@@ -18,6 +19,13 @@ const newStudent = ref({
   phone: '',
   zip: ''
 })
+
+const studentColumns = [
+  { key: 'name', label: 'Name' },
+  { key: 'id', label: 'ID' },
+  { key: 'phone', label: 'Phone' },
+  { key: 'zip', label: 'ZIP' }
+]
 
 async function searchStudent() {
   await studentStore.searchStudent(searchName.value)
@@ -112,29 +120,18 @@ async function deleteStudent() {
     <div class="form-section">
       <h3>Result:</h3>
 
-      <table v-if="student">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>ID</th>
-            <th>Phone</th>
-            <th>ZIP</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td>{{ student.name }}</td>
-            <td>{{ student.id }}</td>
-            <td>{{ student.phone }}</td>
-            <td>{{ student.zip }}</td>
-            <td>
-              <button @click="deleteStudent">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <DataTable
+        v-if="student"
+        :columns="studentColumns"
+        :rows="[student]"
+         row-key="id"
+        >
+          <template #actions>
+            <button @click="deleteStudent">
+              Delete
+            </button>
+          </template>
+        </DataTable>
 
       <p v-else>No student selected.</p>
     </div>

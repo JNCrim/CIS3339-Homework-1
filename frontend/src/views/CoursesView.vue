@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useCourseStore } from '../stores/course'
 import BaseInput from '../components/BaseInput.vue'
 import StatusMessage from '../components/StatusMessage.vue'
+import DataTable from '@/components/DataTable.vue'
 
 const courseStore = useCourseStore()
 
@@ -13,6 +14,11 @@ const newCourse = ref({
   courseId: '',
   courseName: ''
 })
+
+const courseColumns = [
+  { key: 'courseId', label: 'Course ID' },
+  { key: 'courseName', label: 'Course Name' }
+]
 
 // Load courses when the page opens
 onMounted(() => {
@@ -70,27 +76,18 @@ async function deleteCourse(courseId) {
 
     <h3>Course List</h3>
 
-    <table v-if="courses.length">
-      <thead>
-        <tr>
-          <th>Course ID</th>
-          <th>Course Name</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr v-for="course in courses" :key="course.courseId">
-          <td>{{ course.courseId }}</td>
-          <td>{{ course.courseName }}</td>
-          <td>
-            <button @click="deleteCourse(course.courseId)">
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTable
+      v-if="courses.length"
+      :columns="courseColumns"
+      :rows="courses"
+      row-key="courseId"
+    >
+      <template #actions="{ row }">
+        <button @click="deleteCourse(row.courseId)">
+          Delete
+        </button>
+      </template>
+    </DataTable>
 
     <p v-else>No courses available.</p>
   </section>

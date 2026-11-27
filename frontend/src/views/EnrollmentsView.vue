@@ -4,6 +4,7 @@ import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEnrollmentStore } from '../stores/enrollments.js'
 import StatusMessage from '../components/StatusMessage.vue'
+import DataTable from '../components/DataTable.vue'
 
 const enrollmentStore = useEnrollmentStore()
 
@@ -19,6 +20,13 @@ const newEnrollment = ref({
   studentId: '',
   courseId: ''
 })
+
+const enrollmentColumns = [
+  { key: 'studentId', label: 'Student ID' },
+  { key: 'studentName', label: 'Student Name' },
+  { key: 'courseId', label: 'Course ID' },
+  { key: 'courseName', label: 'Course Name' }
+]
 
 // Selected course for filtering the enrollment list
 const selectedCourse = ref('')
@@ -137,34 +145,18 @@ async function deleteEnrollment(id) {
   </select>
 </div>
 
-<table v-if="filteredEnrollments.length">
-      <thead>
-        <tr>
-          <th>Student ID</th>
-          <th>Student Name</th>
-          <th>Course ID</th>
-          <th>Course Name</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr
-           v-for="enrollment in filteredEnrollments"
-           :key="enrollment._id"
-        >
-          <td>{{ enrollment.studentId }}</td>
-          <td>{{ enrollment.studentName }}</td>
-          <td>{{ enrollment.courseId }}</td>
-          <td>{{ enrollment.courseName }}</td>
-          <td>
-            <button @click="deleteEnrollment(enrollment._id)">
-              Remove
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<DataTable
+  v-if="filteredEnrollments.length"
+  :columns="enrollmentColumns"
+  :rows="filteredEnrollments"
+  row-key="_id"
+>
+  <template #actions="{ row }">
+    <button @click="deleteEnrollment(row._id)">
+      Remove
+    </button>
+  </template>
+</DataTable>
 
 <p v-else-if="selectedCourse">
   No students are enrolled in this course.

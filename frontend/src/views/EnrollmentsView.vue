@@ -3,6 +3,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEnrollmentStore } from '../stores/enrollments.js'
+import StatusMessage from '../components/StatusMessage.vue'
 
 const enrollmentStore = useEnrollmentStore()
 
@@ -114,12 +115,10 @@ async function deleteEnrollment(id) {
       <button type="submit">Enroll Student</button>
     </form>
 
-    <p v-if="message" class="success">{{ message }}</p>
-
-    <p v-if="errorMessage" class="error">
-      {{ errorMessage }}
-    </p>
-
+    <StatusMessage
+      :message="message"
+      :error-message="errorMessage"
+    />
 <h3>Enrollment List</h3>
 
 <div class="course-filter">
@@ -217,14 +216,6 @@ th, td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
-}
-
-.success {
-  color: #42b883;
-}
-
-.error {
-  color: #ff5555;
 }
 
 .course-filter {

@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCourseStore } from '../stores/course'
+import BaseInput from '../components/BaseInput.vue'
+import StatusMessage from '../components/StatusMessage.vue'
 
 const courseStore = useCourseStore()
 
@@ -44,16 +46,16 @@ async function deleteCourse(courseId) {
     <h3>Add a Course</h3>
 
     <form @submit.prevent="addCourse">
-      <label for="courseId">Course ID:</label>
-      <input
+      <BaseInput
         id="courseId"
+        label="Course ID:"
         v-model="newCourse.courseId"
         required
       />
 
-      <label for="courseName">Course Name:</label>
-      <input
+      <BaseInput
         id="courseName"
+        label="Course Name:"
         v-model="newCourse.courseName"
         required
       />
@@ -61,8 +63,10 @@ async function deleteCourse(courseId) {
       <button type="submit">Add Course</button>
     </form>
 
-    <p v-if="message" class="success">{{ message }}</p>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <StatusMessage
+      :message="message"
+      :error-message="errorMessage"
+    />
 
     <h3>Course List</h3>
 

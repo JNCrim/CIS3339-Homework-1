@@ -1,12 +1,21 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+dist-ssr/
 
 # Environment variables
 .env
 .env.*
 !.env.example
 
-# Dependencies
-node_modules/
+# Required local MongoDB configuration for assignment
+!/cis3339-homework1/backend/.env
 
-# Production build
-dist/
+# Logs
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db

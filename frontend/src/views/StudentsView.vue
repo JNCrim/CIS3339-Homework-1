@@ -3,6 +3,8 @@
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStudentStore } from '../stores/students'
+import StatusMessage from '../components/StatusMessage.vue'
+import BaseInput from '../components/BaseInput.vue'
 
 const studentStore = useStudentStore()
 
@@ -54,11 +56,10 @@ async function deleteStudent() {
       <h3>Search for a Student</h3>
 
       <form @submit.prevent="searchStudent">
-        <label for="searchName">Student Name:</label>
-        <input
+        <BaseInput
           id="searchName"
+          label="Student Name:"
           v-model="searchName"
-          type="text"
           required
         />
         <button type="submit">Search</button>
@@ -70,25 +71,42 @@ async function deleteStudent() {
       <h3>Add a Student</h3>
 
       <form @submit.prevent="addStudent">
-        <label for="name">Name:</label>
-        <input id="name" v-model="newStudent.name" required />
+        <BaseInput
+          id="name"
+          label="Name:"
+          v-model="newStudent.name"
+          required
+          />
 
-        <label for="id">ID:</label>
-        <input id="id" v-model="newStudent.id" required />
+        <BaseInput
+          id="id"
+          label="ID:"
+          v-model="newStudent.id"
+          required
+        />
 
-        <label for="phone">Phone:</label>
-        <input id="phone" v-model="newStudent.phone" required />
+        <BaseInput
+          id="phone"
+          label="Phone:"
+          v-model="newStudent.phone"
+          required
+        />
 
-        <label for="zip">ZIP:</label>
-        <input id="zip" v-model="newStudent.zip" required />
-
+        <BaseInput
+          id="zip"
+          label="ZIP:"
+          v-model="newStudent.zip"
+          required
+        />
         <button type="submit">Add Student</button>
       </form>
     </div>
 
     <!-- Success/Error Messages -->
-    <p v-if="message" class="success">{{ message }}</p>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <StatusMessage
+    :message="message"
+    :error-message="errorMessage"
+    />
 
     <!-- Search Results -->
     <div class="form-section">
@@ -168,13 +186,5 @@ th, td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
-}
-
-.success {
-  color: #42b883;
-}
-
-.error {
-  color: #ff5555;
 }
 </style>

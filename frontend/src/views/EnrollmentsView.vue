@@ -13,8 +13,21 @@ const {
   courses,
   enrollments,
   message,
-  errorMessage
+  errorMessage,
+  isLoadingStudents,
+  isLoadingCourses,
+  isLoadingEnrollments,
+  isAdding,
+  isDeleting
 } = storeToRefs(enrollmentStore)
+
+const isBusy = computed(() =>
+  isLoadingStudents.value ||
+  isLoadingCourses.value ||
+  isLoadingEnrollments.value ||
+  isAdding.value ||
+  isDeleting.value
+)
 
 const newEnrollment = ref({
   studentId: '',
@@ -56,6 +69,8 @@ onMounted(async () => {
 
 // Enroll a student
 async function addEnrollment() {
+  if (isBusy.value) return
+
   const success = await enrollmentStore.addEnrollment(
     newEnrollment.value
   )
@@ -70,6 +85,8 @@ async function addEnrollment() {
 
 // Remove an enrollment
 async function deleteEnrollment(id) {
+  if (isBusy.value) return
+
   if (!confirm('Remove this enrollment?')) return
 
   await enrollmentStore.deleteEnrollment(id)
@@ -89,9 +106,12 @@ async function deleteEnrollment(id) {
       <select
         id="studentId"
         v-model="newEnrollment.studentId"
+        :disabled="isBusy"
         required
       >
-        <option disabled value="">Select a student</option>
+        <option disabled value="">
+          {{ isLoadingStudents ? 'Loading students...' : 'Select a student' }}
+        </option>
 
         <option
           v-for="student in students"
@@ -107,9 +127,12 @@ async function deleteEnrollment(id) {
       <select
         id="courseId"
         v-model="newEnrollment.courseId"
+        :disabled="isBusy"
         required
       >
-        <option disabled value="">Select a course</option>
+        <option disabled value="">
+          {{ isLoadingCourses ? 'Loading courses...' : 'Select a course' }}
+        </option>
 
         <option
           v-for="course in courses"
@@ -120,7 +143,12 @@ async function deleteEnrollment(id) {
         </option>
       </select>
 
-      <button type="submit">Enroll Student</button>
+      <button
+        type="submit"
+        :disabled="isBusy"
+      >
+        {{ isAdding ? 'Enrolling Student...' : 'Enroll Student' }}
+      </button>
     </form>
 
     <StatusMessage
@@ -132,8 +160,14 @@ async function deleteEnrollment(id) {
 <div class="course-filter">
   <label for="filterCourse">Filter by Course:</label>
 
-  <select id="filterCourse" v-model="selectedCourse">
-    <option value="">All Courses</option>
+  <select
+    id="filterCourse"
+    v-model="selectedCourse"
+    :disabled="isBusy"
+  >
+    <option value="">
+      {{ isLoadingCourses ? 'Loading courses...' : 'All Courses' }}
+    </option>
 
     <option
       v-for="course in courses"
@@ -145,15 +179,22 @@ async function deleteEnrollment(id) {
   </select>
 </div>
 
+<p v-if="isLoadingEnrollments" class="loading-message">
+  Loading enrollments...
+</p>
+
 <DataTable
-  v-if="filteredEnrollments.length"
+  v-else-if="filteredEnrollments.length"
   :columns="enrollmentColumns"
   :rows="filteredEnrollments"
   row-key="_id"
 >
   <template #actions="{ row }">
-    <button @click="deleteEnrollment(row._id)">
-      Remove
+    <button
+      @click="deleteEnrollment(row._id)"
+      :disabled="isBusy"
+    >
+      {{ isDeleting ? 'Removing...' : 'Remove' }}
     </button>
   </template>
 </DataTable>
@@ -207,5 +248,26 @@ button:hover {
 
 .course-filter select {
   width: 100%;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background-color: #42b883;
+}
+
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-message {
+  text-align: center;
+  opacity: 0.8;
+  font-style: italic;
+  margin: 15px 0;
 }
 </style>

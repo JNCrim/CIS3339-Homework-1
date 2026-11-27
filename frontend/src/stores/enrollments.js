@@ -11,8 +11,16 @@ export const useEnrollmentStore = defineStore('enrollments', () => {
   const message = ref('')
   const errorMessage = ref('')
 
-  // Retrieve students
+  const isLoadingStudents = ref(false)
+  const isLoadingCourses = ref(false)
+  const isLoadingEnrollments = ref(false)
+  const isAdding = ref(false)
+  const isDeleting = ref(false)
+
+    // Retrieve students
   async function fetchStudents() {
+    isLoadingStudents.value = true
+
     try {
       const response = await fetch(`${API_URL}/students`)
       const data = await response.json()
@@ -24,11 +32,15 @@ export const useEnrollmentStore = defineStore('enrollments', () => {
       students.value = data
     } catch (error) {
       errorMessage.value = error.message
+    } finally {
+      isLoadingStudents.value = false
     }
   }
 
-  // Retrieve courses
+    // Retrieve courses
   async function fetchCourses() {
+    isLoadingCourses.value = true
+
     try {
       const response = await fetch(`${API_URL}/courses`)
       const data = await response.json()
@@ -40,11 +52,15 @@ export const useEnrollmentStore = defineStore('enrollments', () => {
       courses.value = data
     } catch (error) {
       errorMessage.value = error.message
+    } finally {
+      isLoadingCourses.value = false
     }
   }
 
-  // Retrieve enrollments
+    // Retrieve enrollments
   async function fetchEnrollments() {
+    isLoadingEnrollments.value = true
+
     try {
       const response = await fetch(`${API_URL}/enrollments`)
       const data = await response.json()
@@ -56,13 +72,16 @@ export const useEnrollmentStore = defineStore('enrollments', () => {
       enrollments.value = data
     } catch (error) {
       errorMessage.value = error.message
+    } finally {
+      isLoadingEnrollments.value = false
     }
   }
 
-  // Add an enrollment
+   // Add an enrollment
   async function addEnrollment(enrollment) {
     message.value = ''
     errorMessage.value = ''
+    isAdding.value = true
 
     try {
       const response = await fetch(`${API_URL}/add-enrollment`, {
@@ -84,13 +103,16 @@ export const useEnrollmentStore = defineStore('enrollments', () => {
     } catch (error) {
       errorMessage.value = error.message
       return false
+    } finally {
+      isAdding.value = false
     }
   }
 
-  // Delete an enrollment
+    // Delete an enrollment
   async function deleteEnrollment(id) {
     message.value = ''
     errorMessage.value = ''
+    isDeleting.value = true
 
     try {
       const response = await fetch(
@@ -108,15 +130,22 @@ export const useEnrollmentStore = defineStore('enrollments', () => {
       await fetchEnrollments()
     } catch (error) {
       errorMessage.value = error.message
+    } finally {
+      isDeleting.value = false
     }
   }
 
-  return {
+    return {
     students,
     courses,
     enrollments,
     message,
     errorMessage,
+    isLoadingStudents,
+    isLoadingCourses,
+    isLoadingEnrollments,
+    isAdding,
+    isDeleting,
     fetchStudents,
     fetchCourses,
     fetchEnrollments,

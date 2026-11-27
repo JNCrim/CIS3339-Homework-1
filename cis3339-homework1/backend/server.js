@@ -16,7 +16,7 @@ app.use(express.json());
 
 
  // Search for a student by name
-app.post('/find-student', async (req, res) => {
+app.post('/api/find-student', async (req, res) => {
   try {
     const { name } = req.body;
 
@@ -46,7 +46,7 @@ app.post('/find-student', async (req, res) => {
 });
 
 // Add a new student
-app.post('/add-student', async (req, res) => {
+app.post('/api/add-student', async (req, res) => {
   try {
     const { name, id, phone, zip } = req.body;
 
@@ -84,7 +84,7 @@ app.post('/add-student', async (req, res) => {
 });
 
 // Delete a student by name
-app.post('/delete-student', async (req, res) => {
+app.post('/api/delete-student', async (req, res) => {
   try {
     const { name } = req.body;
 
@@ -125,7 +125,7 @@ app.post('/delete-student', async (req, res) => {
 
 
  // Add a new course
-app.post('/add-course', async (req, res) => {
+app.post('/api/add-course', async (req, res) => {
   try {
     const { courseId, courseName } = req.body;
 
@@ -161,7 +161,7 @@ app.post('/add-course', async (req, res) => {
 });
 
 // List all courses
-app.get('/courses', async (req, res) => {
+app.get('/api/courses', async (req, res) => {
   try {
     const courses = await Course.find().sort({ courseId: 1 });
     res.json(courses);
@@ -174,7 +174,7 @@ app.get('/courses', async (req, res) => {
 });
 
 // Delete a course
-app.delete('/courses/:courseId', async (req, res) => {
+app.delete('/api/courses/:courseId', async (req, res) => {
   try {
     const course = await Course.findOne({
       courseId: req.params.courseId
@@ -204,7 +204,7 @@ app.delete('/courses/:courseId', async (req, res) => {
 });
 
 // List all students
-app.get('/students', async (req, res) => {
+app.get('/api/students', async (req, res) => {
   try {
     const students = await Student.find().sort({ name: 1 });
     res.json(students);
@@ -218,7 +218,7 @@ app.get('/students', async (req, res) => {
 
 
 // Enroll a student in a course
-app.post('/add-enrollment', async (req, res) => {
+app.post('/api/add-enrollment', async (req, res) => {
   try {
     const { studentId, courseId } = req.body;
 
@@ -275,7 +275,7 @@ app.post('/add-enrollment', async (req, res) => {
 });
 
 // List all enrollments
-app.get('/enrollments', async (req, res) => {
+app.get('/api/enrollments', async (req, res) => {
   try {
     const enrollments = await Enrollment.find();
 
@@ -310,7 +310,7 @@ app.get('/enrollments', async (req, res) => {
 });
 
 // Delete an enrollment
-app.delete('/enrollments/:id', async (req, res) => {
+app.delete('/api/enrollments/:id', async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).json({

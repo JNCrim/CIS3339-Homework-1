@@ -106,11 +106,6 @@ form {
   margin-bottom: 25px;
 }
 
-input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
 
 button {
   padding: 10px;
@@ -125,23 +120,4 @@ button:hover {
   background-color: #36966d;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-}
-
-.success {
-  color: #42b883;
-}
-
-.error {
-  color: #ff5555;
-}
 </style>

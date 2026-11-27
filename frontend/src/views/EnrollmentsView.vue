@@ -198,18 +198,6 @@ button:hover {
   background-color: #36966d;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-}
-
 .course-filter {
   display: flex;
   flex-direction: column;

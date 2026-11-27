@@ -154,12 +154,6 @@ form {
   gap: 10px;
 }
 
-input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
 button {
   padding: 10px;
   background-color: #42b883;
@@ -173,15 +167,4 @@ button:hover {
   background-color: #36966d;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-}
 </style>

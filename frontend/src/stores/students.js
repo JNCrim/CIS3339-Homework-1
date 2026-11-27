@@ -9,10 +9,15 @@ export const useStudentStore = defineStore('students', () => {
   const message = ref('')
   const errorMessage = ref('')
 
-  async function searchStudent(name) {
+  const isSearching = ref(false)
+  const isAdding = ref(false)
+  const isDeleting = ref(false)
+
+    async function searchStudent(name) {
     message.value = ''
     errorMessage.value = ''
     student.value = null
+    isSearching.value = true
 
     try {
       const response = await fetch(`${API_URL}/find-student`, {
@@ -30,12 +35,15 @@ export const useStudentStore = defineStore('students', () => {
       student.value = data
     } catch (error) {
       errorMessage.value = error.message
+    } finally {
+      isSearching.value = false
     }
   }
 
-  async function addStudent(newStudent) {
+    async function addStudent(newStudent) {
     message.value = ''
     errorMessage.value = ''
+    isAdding.value = true
 
     try {
       const response = await fetch(`${API_URL}/add-student`, {
@@ -55,12 +63,15 @@ export const useStudentStore = defineStore('students', () => {
     } catch (error) {
       errorMessage.value = error.message
       return false
+    } finally {
+      isAdding.value = false
     }
   }
 
-  async function deleteStudent(name) {
+    async function deleteStudent(name) {
     message.value = ''
     errorMessage.value = ''
+    isDeleting.value = true
 
     try {
       const response = await fetch(`${API_URL}/delete-student`, {
@@ -81,13 +92,18 @@ export const useStudentStore = defineStore('students', () => {
     } catch (error) {
       errorMessage.value = error.message
       return false
+    } finally {
+      isDeleting.value = false
     }
   }
 
-  return {
+    return {
     student,
     message,
     errorMessage,
+    isSearching,
+    isAdding,
+    isDeleting,
     searchStudent,
     addStudent,
     deleteStudent

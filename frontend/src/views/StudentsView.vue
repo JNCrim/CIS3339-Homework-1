@@ -9,7 +9,14 @@ import DataTable from '../components/DataTable.vue'
 
 const studentStore = useStudentStore()
 
-const { student, message, errorMessage } = storeToRefs(studentStore)
+const {
+  student,
+  message,
+  errorMessage,
+  isSearching,
+  isAdding,
+  isDeleting
+} = storeToRefs(studentStore)
 
 const searchName = ref('')
 
@@ -28,10 +35,14 @@ const studentColumns = [
 ]
 
 async function searchStudent() {
+  if (isSearching.value || isAdding.value || isDeleting.value) return
+
   await studentStore.searchStudent(searchName.value)
 }
 
 async function addStudent() {
+  if (isSearching.value || isAdding.value || isDeleting.value) return
+
   const success = await studentStore.addStudent(newStudent.value)
 
   if (success) {
@@ -45,6 +56,8 @@ async function addStudent() {
 }
 
 async function deleteStudent() {
+  if (isSearching.value || isAdding.value || isDeleting.value) return
+
   if (!student.value) return
 
   if (!confirm(`Delete student ${student.value.name}?`)) {
@@ -70,7 +83,12 @@ async function deleteStudent() {
           v-model="searchName"
           required
         />
-        <button type="submit">Search</button>
+        <button
+          type="submit"
+          :disabled="isSearching || isAdding || isDeleting"
+        >
+          {{ isSearching ? 'Searching...' : 'Search' }}
+        </button>
       </form>
     </div>
 
@@ -106,7 +124,12 @@ async function deleteStudent() {
           v-model="newStudent.zip"
           required
         />
-        <button type="submit">Add Student</button>
+        <button
+          type="submit"
+          :disabled="isSearching || isAdding || isDeleting"
+        >
+          {{ isAdding ? 'Adding Student...' : 'Add Student' }}
+        </button>
       </form>
     </div>
 
@@ -116,25 +139,32 @@ async function deleteStudent() {
     :error-message="errorMessage"
     />
 
-    <!-- Search Results -->
-    <div class="form-section">
-      <h3>Result:</h3>
+        <!-- Search Results -->
+        <div class="form-section">
+          <h3>Result:</h3>
 
-      <DataTable
-        v-if="student"
-        :columns="studentColumns"
-        :rows="[student]"
-         row-key="id"
-        >
-          <template #actions>
-            <button @click="deleteStudent">
-              Delete
-            </button>
-          </template>
-        </DataTable>
+          <p v-if="isSearching" class="loading-message">
+            Searching for student...
+          </p>
 
-      <p v-else>No student selected.</p>
-    </div>
+          <DataTable
+            v-else-if="student"
+            :columns="studentColumns"
+            :rows="[student]"
+            row-key="id"
+          >
+            <template #actions>
+              <button
+                @click="deleteStudent"
+                :disabled="isSearching || isAdding || isDeleting"
+              >
+                {{ isDeleting ? 'Deleting...' : 'Delete' }}
+              </button>
+            </template>
+          </DataTable>
+
+          <p v-else>No student selected.</p>
+        </div>
   </section>
 </template>
 
@@ -166,5 +196,22 @@ button {
 button:hover {
   background-color: #36966d;
 }
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background-color: #42b883;
+}
+
+.loading-message {
+  text-align: center;
+  opacity: 0.8;
+  font-style: italic;
+  margin: 15px 0;
+}
+
 
 </style>

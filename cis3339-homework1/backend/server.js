@@ -9,6 +9,7 @@ const Enrollment = require('./models/enrollment');
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -340,6 +341,25 @@ app.delete('/api/enrollments/:id', async (req, res) => {
   }
 });
 
+// Return JSON for unknown API endpoints
+app.use('/api', (req, res) => {
+  res.status(404).json({
+    error: 'API endpoint not found'
+  });
+});
+
+// Serve the compiled Vue frontend
+const frontendPath = path.join(
+  __dirname,
+  '../../frontend/dist'
+);
+
+app.use(express.static(frontendPath));
+
+// Handle Vue Router routes
+app.get('/{*splat}', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;
